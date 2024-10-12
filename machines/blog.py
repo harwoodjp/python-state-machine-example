@@ -2,6 +2,7 @@ from models.machine import Machine
 from models.function import Function
 from models.state import State
 from models.transition import Transition
+from typing import List
 
 
 def create_blog(data):
@@ -17,6 +18,8 @@ def delete_blog(data):
     for post in data["posts"]:
         print(f"DELETE /api/blog/{data['id']}/post/{post.data['id']}")
     print(f"DELETE /api/blog/{data['id']}")
+    data["id"] = None
+    data["posts"] = []
 
 create_blog_fn = Function(fn=create_blog)
 activate_blog_fn = Function(fn=activate_blog)
@@ -39,3 +42,12 @@ class Blog(Machine):
         super().__init__(initial_state, states, transitions, data)
     def add_posts(self, posts: list):
         self.data["posts"] += posts
+    def get_post(self, id: int):
+        for post in self.data["posts"]:
+            if post.data["id"] == id:
+                return post
+        return None
+    def archive_posts(self):
+        for post in self.data["posts"]:
+            if post.state.name != "Archived":
+                post.transition(State("Archived"))
