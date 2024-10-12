@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  app:
+    container_name: gpt
+    image: python:3.9
+    working_dir: /app
+    env_file: ".env"
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    command: ["/bin/sh", "./bin/start.sh"]
+    restart: always
