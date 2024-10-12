@@ -3,28 +3,35 @@ from models.state import State
 from models.function import Function
 from models.transition import Transition
 
+Draft = State("Draft")
+Published = State("Published")
+Archived = State("Archived")
+
 
 def draft_post(data):
     print(f"POST /blog/{data['blog']}/post/{data['id']}/draft")
 
+
 def publish_post(data):
     print(f"POST /blog/{data['blog']}/post/{data['id']}/publish")
+
 
 def archive_post(data):
     print(f"POST /blog/{data['blog']}/post/{data['id']}/archive")
 
-draft_post_fn = Function(fn=draft_post)
-publish_post_fn = Function(fn=publish_post)
-archive_post_fn = Function(fn=archive_post)
 
-initial_state = State("Draft")
-states = [State("Draft"), State("Published"), State("Archived")]
+initial_state = Draft
+states = [Draft, Published, Archived]
 transitions = [
-    Transition(initial_state, initial_state, draft_post_fn),
-    Transition(State("Draft"), State("Published"), publish_post_fn),
-    Transition(State("Published"), State("Archived"), archive_post_fn),
+    Transition(initial_state, initial_state, Function(fn=draft_post)),
+    Transition(Draft, Published, Function(fn=publish_post)),
+    Transition(Published, Archived, Function(fn=archive_post)),
 ]
+
 
 class Post(Machine):
     def __init__(self, data: dict):
         super().__init__(initial_state, states, transitions, data)
+
+    def get_id(self):
+        return self.data["id"]
